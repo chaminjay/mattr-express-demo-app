@@ -1,0 +1,88 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap");
+
+body {
+  font-family: "Montserrat", sans-serif;
+}
+
+:root {
+  --bs-primary: #4ed301;
+  --bs-primary-rgb: 78, 211, 1;
+  --bs-secondary: #909090;
+  --bs-secondary-rgb: 144, 144, 144;
+}
+
+/* primary */
+.btn.btn-primary {
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+}
+
+.btn.btn-primary:hover {
+  color: #fff;
+  background-color: var(--bs-primary);
+}
+
+.btn.btn-primary:focus {
+  box-shadow: 0 0 0 0.1rem rgba(78, 211, 1, 0.5);
+}
+
+.btn.btn-outline-primary {
+  color: var(--bs-primary);
+  border-color: var(--bs-primary);
+}
+
+.btn.btn-outline-primary:hover {
+  color: #fff;
+  background-color: var(--bs-primary);
+}
+
+.btn.btn-outline-primary:focus {
+  box-shadow: 0 0 0 0.1rem rgba(78, 211, 1, 0.5);
+}
+
+.border-primary {
+  border-color: var(--bs-primary) !important;
+}
+
+/* secondary */
+.btn.btn-secondary {
+  background-color: var(--bs-secondary);
+  border-color: var(--bs-secondary);
+}
+
+.btn.btn-secondary:hover {
+  color: #fff;
+  background-color: var(--bs-secondary);
+}
+
+.btn.btn-secondary:focus {
+  box-shadow: 0 0 0 0.1rem rgba(144, 144, 144, 0.5);
+}
+
+.btn.btn-outline-secondary {
+  color: var(--bs-secondary);
+  border-color: var(--bs-secondary);
+}
+
+.btn.btn-outline-secondary:hover {
+  color: #fff;
+  background-color: var(--bs-secondary);
+}
+
+.btn.btn-outline-secondary:focus {
+  box-shadow: 0 0 0 0.1rem rgba(144, 144, 144, 0.5);
+}
+
+.border-secondary {
+  border-color: var(--bs-secondary) !important;
+}
+
+/* common styles */
+.btn-close:focus {
+  box-shadow: none;
+}
+
+/* overrides */
+.json-tree-wrapper ul {
+  list-style: none !important;
+}
