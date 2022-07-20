@@ -1,6 +1,8 @@
 const got = require("got");
 const dotenv = require("dotenv");
+const { v4: uuidv4 } = require('uuid');
 
+// Retrieve configurations from the .env file.
 dotenv.config();
 const mattrIssuerId = process.env.MATTR_CREDENTIAL_ISSUER_ID;
 const matterClientId = process.env.MATTR_CLIENT_ID;
@@ -8,40 +10,45 @@ const matterClientSecret = process.env.MATTR_CLIENT_SECRET;
 const mattrTenantDomain = process.env.MATTR_TENANT_DOMAIN;
 const mattrNonBLSDidId = process.env.MATTR_NON_BLS_DID_ID;
 const mattrTempleId = process.env.MATTR_TEMPLATE_ID;
-var jwsUrls = {};
-var i = 0;
+const qrBaseURL = process.env.QR_BASE_URL;
 
-var baseURL = "https://api.qrserver.com/v1/create-qr-code/?size=400x400&data="
+var jwsUrls = {};
 
 const getCredentials = async function() {
   var qrCode = null;
   if (mattrIssuerId != undefined ) {
     var url = `https://${mattrTenantDomain}.vii.mattr.global/ext/oidc/v1/issuers/${mattrIssuerId}`;
-    qrCode = `${baseURL}openid://discovery?issuer=${url}`;
+    qrCode = `${qrBaseURL}openid://discovery?issuer=${url}`;
   }
   console.log(qrCode);
   return qrCode;
 }
 
-// validate mattr verifiable credentials
+/**
+ * Create QR code for MATTR credentials validation.
+ *
+ * @param ngrokUrl  URL of the ngrok tunnel.
+ * @return QR code and the challenge.
+ */
 const validateCredentials = async function(ngrokUrl) {
-    console.log(ngrokUrl);
-    const getAccessTokenPayload = {
-      "client_id": matterClientId,
-      "client_secret": matterClientSecret,
-      "audience": "https://vii.mattr.global",
-      "grant_type": "client_credentials"
-    };
+
+    // Get a access token for MATTR tenant.
     var tokenResponse = await got.post("https://auth.mattr.global/oauth/token",
-      { json: getAccessTokenPayload }).json();
-
+        {
+            json: {
+                "client_id": matterClientId,
+                "client_secret": matterClientSecret,
+                "audience": "https://vii.mattr.global",
+                "grant_type": "client_credentials"
+            },
+            responseType: 'json'
+        }).json();
     var token = tokenResponse.access_token;
-    console.log("Retrieved access token", tokenResponse.access_token);
+    console.log("Retrieved access token successfully.");
 
-    i += 1;
-    var challenge = "GW8FGpP6jhFrl37yQZIM" + i;
-    // Provision Presentation Request
-    var presentationRequest = await got.post(`https://${mattrTenantDomain}.vii.mattr.global/core/v1/presentations/requests`,
+    // Create a Presentation Request
+    var challenge = uuidv4();
+    var presentationResponse = await got.post(`https://${mattrTenantDomain}.vii.mattr.global/core/v1/presentations/requests`,
         {
             headers: {
                 "Authorization": `Bearer ${token}`
@@ -54,52 +61,51 @@ const validateCredentials = async function(ngrokUrl) {
             },
             responseType: 'json'
     });
-    console.log("Create Presentation Request statusCode: ", presentationRequest.statusCode);
-    const requestPayload = presentationRequest.body.request;
-    console.log(requestPayload, '\n');
+    console.log("Create Presentation Request statusCode: ", presentationResponse.statusCode);
+    const requestPayload = presentationResponse.body.request;
 
     // Get DIDUrl from Verifier DID Doc
-    var dids = `https://${mattrTenantDomain}.vii.mattr.global/core/v1/dids/` + mattrNonBLSDidId;
-    console.log("Looking up DID Doc from Verifier DID :", dids);
-
-    response = await got.get(dids, {
-
-        headers: {
-            "Authorization": `Bearer ${token}`
-        },
-        responseType: 'json'
-    });
-    console.log("Public key from DID Doc found, DIDUrl is: " , response.body.didDocument.authentication[0], '\n');
-    const didUrl = response.body.didDocument.authentication[0];
-
+    var DIDResponse = await got.get(`https://${mattrTenantDomain}.vii.mattr.global/core/v1/dids/` + mattrNonBLSDidId,
+        {
+            headers: {
+                "Authorization": `Bearer ${token}`
+            },
+            responseType: 'json'
+        });
+    const didUrl = DIDResponse.body.didDocument.authentication[0];
+    console.log("Public key from DID Doc found, DIDUrl is: " , didUrl);
 
    // Sign payload
-    var signMes = `https://${mattrTenantDomain}.vii.mattr.global/core/v1/messaging/sign`
-    console.log("Signing the Presentation Request payload at: " , signMes);
-
-    response = await got.post(signMes, {
-
-        headers: {
-            "Authorization": `Bearer ${token}`
-        },
-        json: {
-            "didUrl": didUrl,
-            "payload": requestPayload
-        },
-        responseType: 'json'
-    });
-    const jws = response.body
+    var signMesResponse = await got.post(`https://${mattrTenantDomain}.vii.mattr.global/core/v1/messaging/sign`,
+        {
+            headers: {
+                "Authorization": `Bearer ${token}`
+            },
+            json: {
+                "didUrl": didUrl,
+                "payload": requestPayload
+            },
+            responseType: 'json'
+        });
+    const jws = signMesResponse.body
     console.log("The signed Presentation Request message is: ", jws, '\n');
 
+    //Add JWS URL to JWS URL list.
     jwsUrls[challenge] = `https://${mattrTenantDomain}.vii.mattr.global/?request=${jws}`;
 
-    var didcommUrl = `didcomm://${ngrokUrl}/qr/?challenge=${challenge}`;
-    console.log("The URL encoded in this QR code" , didcommUrl);
-    var qrCode = `${baseURL}${didcommUrl}`;
-    return {qrCode, challenge};
+    var qrCode = `${qrBaseURL}didcomm://${ngrokUrl}/qr/?challenge=${challenge}`;
+
+    return { qrCode, challenge };
 }
 
+/**
+ * Get JWS URL for given challenge.
+ *
+ * @param challenge  Challenge that used to create JWS URL.
+ * @return JWS URL.
+ */
 const getJwsUrl = async function(challenge) {
+
     return jwsUrls[challenge];
 }
 

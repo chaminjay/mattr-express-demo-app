@@ -2,7 +2,7 @@ const dotenv = require("dotenv");
 const express = require("express");
 const bodyParser = require("body-parser");
 const ngrok = require("ngrok");
-var session = require("express-session");
+const session = require("express-session");
 
 const service = require("./src/services");
 const { requestLogger } = require("./src/utils");
@@ -153,7 +153,6 @@ router.get(
       var sessionData = {
         status: 0,
         message: "Verification process initiated.",
-        challenge: null,
       };
       if (session) {
         session.sessionData = sessionData;
