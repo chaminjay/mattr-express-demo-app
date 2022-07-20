@@ -6,8 +6,10 @@ const mattrIssuerId = process.env.MATTR_CREDENTIAL_ISSUER_ID;
 const matterClientId = process.env.MATTR_CLIENT_ID;
 const matterClientSecret = process.env.MATTR_CLIENT_SECRET;
 const mattrTenantDomain = process.env.MATTR_TENANT_DOMAIN;
-const mattrVerifierID = process.env.MATTR_VERIFIER_ID;
-const mattrTempleID = process.env.MATTR_TEMPLATE_ID;
+const mattrNonBLSDidId = process.env.MATTR_NON_BLS_DID_ID;
+const mattrTempleId = process.env.MATTR_TEMPLATE_ID;
+var jwsUrls = {};
+var i = 0;
 
 var baseURL = "https://api.qrserver.com/v1/create-qr-code/?size=400x400&data="
 
@@ -36,6 +38,8 @@ const validateCredentials = async function(ngrokUrl) {
     var token = tokenResponse.access_token;
     console.log("Retrieved access token", tokenResponse.access_token);
 
+    i += 1;
+    var challenge = "GW8FGpP6jhFrl37yQZIM" + i;
     // Provision Presentation Request
     var presentationRequest = await got.post(`https://${mattrTenantDomain}.vii.mattr.global/core/v1/presentations/requests`,
         {
@@ -43,9 +47,9 @@ const validateCredentials = async function(ngrokUrl) {
                 "Authorization": `Bearer ${token}`
             },
             json: {
-                "challenge": "GW8FGpP6jhFrl37yQZIM6w",
-                "did": mattrVerifierID,
-                "templateId": mattrTempleID,
+                "challenge": challenge,
+                "did": mattrNonBLSDidId,
+                "templateId": mattrTempleId,
                 "callbackUrl": `${ngrokUrl}/callback`
             },
             responseType: 'json'
@@ -55,7 +59,7 @@ const validateCredentials = async function(ngrokUrl) {
     console.log(requestPayload, '\n');
 
     // Get DIDUrl from Verifier DID Doc
-    var dids = `https://${mattrTenantDomain}.vii.mattr.global/core/v1/dids/` + mattrVerifierID
+    var dids = `https://${mattrTenantDomain}.vii.mattr.global/core/v1/dids/` + mattrNonBLSDidId;
     console.log("Looking up DID Doc from Verifier DID :", dids);
 
     response = await got.get(dids, {
@@ -87,12 +91,16 @@ const validateCredentials = async function(ngrokUrl) {
     const jws = response.body
     console.log("The signed Presentation Request message is: ", jws, '\n');
 
-    jwsUrl = `https://${mattrTenantDomain}.vii.mattr.global/?request=${jws}`;
+    jwsUrls[challenge] = `https://${mattrTenantDomain}.vii.mattr.global/?request=${jws}`;
 
-    var didcommUrl = `didcomm://${ngrokUrl}/qr`;
+    var didcommUrl = `didcomm://${ngrokUrl}/qr/?challenge=${challenge}`;
     console.log("The URL encoded in this QR code" , didcommUrl);
-
-    return `${baseURL}${didcommUrl}`;
+    var qrCode = `${baseURL}${didcommUrl}`;
+    return {qrCode, challenge};
 }
 
-module.exports = { getCredentials, validateCredentials };
+const getJwsUrl = async function(challenge) {
+    return jwsUrls[challenge];
+}
+
+module.exports = { getCredentials, validateCredentials, getJwsUrl };

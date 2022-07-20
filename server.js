@@ -74,13 +74,15 @@ router.post("/callback", function (req, res) {
   req.on("end", function () {
     requestLogger(req);
     var callbackResponse = JSON.parse(body.toString());
-    sessionStore.get(callbackState.id, (error, session) => {
+    var challenge = callbackResponse.challengeId;
+    sessionStore.get(callbackState[challenge], (error, session) => {
       var cacheData = {
         status: "verified",
-        callbackResponse: callbackResponse,
+        callbackResponse: callbackResponse.claims,
+        challenge: callbackResponse.challengeId,
       };
       session.sessionData = cacheData;
-      sessionStore.set(callbackState.id, session, (error) => {
+      sessionStore.set(callbackState[challenge], session, (error) => {
         res.send();
       });
       console.log("Session: ", session);
@@ -92,13 +94,14 @@ router.post("/callback", function (req, res) {
 
 app.get("/api/verifier/presentation-response", async (req, res) => {
   var id = req.query.id;
+  var challenge = req.query.challenge;
   requestLogger(req);
   sessionStore.get(id, (error, session) => {
     if (session && session.sessionData) {
       console.log(
-        `status: ${session.sessionData.status}, callbackResponse: ${session.sessionData.callbackResponse}`
-      );
-      res.status(200).json(session.sessionData);
+        `status: ${session.sessionData.status}, callbackResponse: ${session.sessionData.callbackResponse}`);
+      var data = session.sessionData;
+      res.status(200).json({ data, challenge });
     }
   });
 });
@@ -108,10 +111,10 @@ router.get("/", async (req, res) => {
   res.render("index");
 });
 
-router.get("/qr", function (req, res) {
+router.get("/qr", async (req, res) => {
   requestLogger(req);
   const body = res.body;
-  console.log("jws url: ", jwsUrl);
+  const jwsUrl = await service.getJwsUrl(req.query.challenge);
   res.redirect(jwsUrl);
 });
 
@@ -142,6 +145,7 @@ router.get(
   "/present/validateCredentials",
   express.json(),
   async (req, res, next) => {
+    const { qrCode, challenge } = await service.validateCredentials(ngrokUrl);
     requestLogger(req);
     var id = req.session.id;
     // prep a session state of 0
@@ -149,18 +153,18 @@ router.get(
       var sessionData = {
         status: 0,
         message: "Verification process initiated.",
+        challenge: null,
       };
       if (session) {
         session.sessionData = sessionData;
         sessionStore.set(id, session);
-        callbackState.id = id;
-        console.log("Session: ", session);
+        callbackState[challenge] = id;
+        console.log("Session: ", session, callbackState[challenge]);
       }
     });
     try {
       console.log("Presenting QR Code");
-      const qrCode = await service.validateCredentials(ngrokUrl);
-      res.status(200).json({ id: id, qrCode: qrCode });
+      res.status(200).json({ id: id, challenge: challenge, qrCode: qrCode });
     } catch (err) {
       console.error("Failed to present QR code", err, err?.response?.body);
       next(err);

@@ -191,22 +191,23 @@
           .then((res) => {
             console.log(res);
             responseId = res.id;
+            challenge = res.challenge;
             document.getElementById("verifyQRLoading").hidden = true;
             document.getElementById("verifyQRImage").hidden = false;
             document.getElementById("verifyQRImage").src = res.qrCode;
           })
           .then((res) => {
             var checkStatus = setInterval(function () {
-              fetch("api/verifier/presentation-response?id=" + responseId)
+              fetch("api/verifier/presentation-response?id=" + responseId + "&challenge=" + challenge)
                 .then((res) => res.text())
                 .catch((err) => console.log(err))
                 .then((res) => {
                   if (res.length > 0) {
-                    res = JSON.parse(res);
+                    var data = JSON.parse(res).data;
+                    var challenge = JSON.parse(res).challenge;
                     // QR Code verified
-                    if (res.status == "verified") {
-                      console.log(res);
-                      handleAuth(JSON.stringify(res.callbackResponse));
+                    if (data.status == "verified" && challenge == data.challenge) {
+                      handleAuth(JSON.stringify(data.callbackResponse));
                       clearInterval(checkStatus);
                     }
                   }
