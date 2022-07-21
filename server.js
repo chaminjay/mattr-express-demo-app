@@ -99,7 +99,8 @@ app.get("/api/verifier/presentation-response", async (req, res) => {
   sessionStore.get(id, (error, session) => {
     if (session && session.sessionData) {
       console.log(
-        `status: ${session.sessionData.status}, callbackResponse: ${session.sessionData.callbackResponse}`);
+        `status: ${session.sessionData.status}, callbackResponse: ${session.sessionData.callbackResponse}`
+      );
       var data = session.sessionData;
       res.status(200).json({ data, challenge });
     }
@@ -170,6 +171,26 @@ router.get(
     }
   }
 );
+
+router.get("/waiting", (req, res) => {
+  requestLogger(req);
+  res.render("waiting");
+});
+
+router.get("/billing", (req, res) => {
+  requestLogger(req);
+  res.render("billing");
+});
+
+router.get("/customer-verify", (req, res) => {
+  requestLogger(req);
+  res.render("verify");
+});
+
+router.get("/customer-checkout", (req, res) => {
+  requestLogger(req);
+  res.render("checkout");
+});
 
 // 404 page
 app.use((req, res) => {
