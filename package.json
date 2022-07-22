@@ -22,7 +22,6 @@
   "devDependencies": {
     "dotenv": "^10.0.0",
     "morgan": "^1.10.0",
-    "ngrok": "4.0.1",
     "nodemon": "^2.0.19",
     "qrcode": "^1.5.1"
   }
