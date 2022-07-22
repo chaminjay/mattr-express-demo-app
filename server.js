@@ -118,11 +118,6 @@ router.get("/qr", async (req, res) => {
   res.redirect(jwsUrl);
 });
 
-router.get("/claims", async (req, res) => {
-  requestLogger(req);
-  res.render("claims");
-});
-
 // Get QR code for retrieving verifiable credentials.
 router.get(
   "/present/getVerifiableCredentials",
