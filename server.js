@@ -1,6 +1,5 @@
 const dotenv = require("dotenv");
 const express = require("express");
-const bodyParser = require("body-parser");
 const ngrok = require("ngrok");
 const session = require("express-session");
 
