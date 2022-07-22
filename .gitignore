@@ -131,3 +131,4 @@ dist
 
 #ide temps
 .idea/
+.DS_Store
