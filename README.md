@@ -23,6 +23,11 @@ To Start Server:
 npm start
 ```
 
+Run app in production mode:
+```bash
+npm run start:prod
+```
+
 Run app in dev mode:
 ```bash
 npm run dev
