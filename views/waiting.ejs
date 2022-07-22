@@ -36,7 +36,6 @@
       function listenForVerification() {
         var checkStatus = setInterval(function () {
           const user = localStorage.getItem("authUser");
-          console.log(user);
           if (user) {
             location.replace("/billing");
             clearInterval(checkStatus);
