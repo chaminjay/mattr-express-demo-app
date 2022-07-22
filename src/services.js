@@ -4,6 +4,7 @@ const { v4: uuidv4 } = require('uuid');
 
 // Retrieve configurations from the .env file.
 dotenv.config();
+const rootUrl = process.env.ROOT_URL;
 const mattrIssuerId = process.env.MATTR_CREDENTIAL_ISSUER_ID;
 const matterClientId = process.env.MATTR_CLIENT_ID;
 const matterClientSecret = process.env.MATTR_CLIENT_SECRET;
@@ -27,10 +28,9 @@ const getCredentials = async function() {
 /**
  * Create QR code for MATTR credentials validation.
  *
- * @param ngrokUrl  URL of the ngrok tunnel.
  * @return QR code and the challenge.
  */
-const validateCredentials = async function(ngrokUrl) {
+const validateCredentials = async function() {
 
     // Get a access token for MATTR tenant.
     var tokenResponse = await got.post("https://auth.mattr.global/oauth/token",
@@ -57,7 +57,7 @@ const validateCredentials = async function(ngrokUrl) {
                 "challenge": challenge,
                 "did": mattrNonBLSDidId,
                 "templateId": mattrTempleId,
-                "callbackUrl": `${ngrokUrl}/callback`
+                "callbackUrl": `${rootUrl}/callback`
             },
             responseType: 'json'
     });
@@ -93,7 +93,7 @@ const validateCredentials = async function(ngrokUrl) {
     //Add JWS URL to JWS URL list.
     jwsUrls[challenge] = `https://${mattrTenantDomain}.vii.mattr.global/?request=${jws}`;
 
-    var qrCode = `${qrBaseURL}didcomm://${ngrokUrl}/qr/?challenge=${challenge}`;
+    var qrCode = `${qrBaseURL}didcomm://${rootUrl}/qr/?challenge=${challenge}`;
 
     return { qrCode, challenge };
 }
