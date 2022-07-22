@@ -1,7 +1,7 @@
 {
-  "name": "mattrapp",
+  "name": "mattr-express-demo-app",
   "version": "1.0.0",
-  "description": "",
+  "description": "MATTR - Express Demo App",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -17,7 +17,8 @@
     "express": "^4.18.1",
     "express-session": "^1.17.3",
     "got": "^11.8.5",
-    "pm2": "^5.2.0"
+    "pm2": "^5.2.0",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "dotenv": "^10.0.0",
