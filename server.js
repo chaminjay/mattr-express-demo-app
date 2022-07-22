@@ -108,7 +108,7 @@ app.get("/api/verifier/presentation-response", async (req, res) => {
 
 router.get("/", async (req, res) => {
   requestLogger(req);
-  res.render("index");
+  res.render("index", { title: "Coffee Co. | Customer" });
 });
 
 router.get("/qr", async (req, res) => {
@@ -168,22 +168,22 @@ router.get(
 
 router.get("/waiting", (req, res) => {
   requestLogger(req);
-  res.render("waiting");
+  res.render("waiting", { title: "Coffee Co. | Cashier" });
 });
 
 router.get("/billing", (req, res) => {
   requestLogger(req);
-  res.render("billing");
+  res.render("billing", { title: "Coffee Co. | Cashier" });
 });
 
 router.get("/customer-verify", (req, res) => {
   requestLogger(req);
-  res.render("verify");
+  res.render("verify", { title: "Coffee Co. | Customer" });
 });
 
 router.get("/customer-checkout", (req, res) => {
   requestLogger(req);
-  res.render("checkout");
+  res.render("checkout", { title: "Coffee Co. | Customer" });
 });
 
 // 404 page
