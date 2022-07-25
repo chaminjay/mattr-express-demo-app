@@ -7,6 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
     "start:prod": "pm2 start server.js",
+    "stop:prod": "pm2 stop server.js",
     "dev": "nodemon server.js"
   },
   "keywords": [],

@@ -27,8 +27,13 @@
    ```
 
 - Run app in production mode:
+  To start the server.
    ```bash
     npm run start:prod
+   ```
+  To Stop the server
+   ```bash
+    npm run stop:prod
    ```
 
 - Run app in dev mode:
