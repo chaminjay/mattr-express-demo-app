@@ -6,29 +6,32 @@
 
 ## Common setup
 
-Clone the repo and install the dependencies. You will need `node` and `npm` installed globally on your machine.
+- Clone the repo and install the dependencies. You will need `node` and `npm` installed globally on your machine.
 
-```bash
-git clone https://github.com/chaminjay/mattr-express-demo-app.git
-cd mattr-express-demo-app
-```
+   ```bash
+    git clone https://github.com/chaminjay/mattr-express-demo-app.git
+    cd mattr-express-demo-app
+   ```
 
-Installation:
-```bash
-npm install
-```
+- Setting up environmental variables:
+   - Rename `.env-template` to `.env` and fill up the values accordingly.
 
-To Start Server:
-```bash
-npm start
-```
+- Installation:
+   ```bash
+    npm install
+   ```
 
-Run app in production mode:
-```bash
-npm run start:prod
-```
+- To Start Server:
+   ```bash
+    npm start
+   ```
 
-Run app in dev mode:
-```bash
-npm run dev
-```
+- Run app in production mode:
+   ```bash
+    npm run start:prod
+   ```
+
+- Run app in dev mode:
+   ```bash
+    npm run dev
+   ```
