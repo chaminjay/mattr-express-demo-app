@@ -4,6 +4,7 @@ const { v4: uuidv4 } = require('uuid');
 
 // Retrieve configurations from the .env file.
 dotenv.config();
+const host = process.env.HOST;
 const rootUrl = process.env.ROOT_URL;
 const mattrIssuerId = process.env.MATTR_CREDENTIAL_ISSUER_ID;
 const matterClientId = process.env.MATTR_CLIENT_ID;
@@ -57,7 +58,7 @@ const validateCredentials = async function() {
                 "challenge": challenge,
                 "did": mattrNonBLSDidId,
                 "templateId": mattrTempleId,
-                "callbackUrl": `${rootUrl}/callback`
+                "callbackUrl": `${host}/callback`
             },
             responseType: 'json'
     });
@@ -93,7 +94,7 @@ const validateCredentials = async function() {
     //Add JWS URL to JWS URL list.
     jwsUrls[challenge] = `https://${mattrTenantDomain}.vii.mattr.global/?request=${jws}`;
 
-    var qrCode = `${qrBaseURL}didcomm://${rootUrl}/qr/?challenge=${challenge}`;
+    var qrCode = `${qrBaseURL}didcomm://${host}/qr/?challenge=${challenge}`;
 
     return { qrCode, challenge };
 }
