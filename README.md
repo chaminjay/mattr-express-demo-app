@@ -1,6 +1,9 @@
 # Guardio Cafe | MATTR Demo App
 
 > cafe.guardio.wso2isdemo.com
+<center>
+   <img width="1426" alt="image" src="https://user-images.githubusercontent.com/90854808/183014700-d05dcb85-dc84-4834-8153-314111c41a7c.png">
+<center />
 
 ## Requirements
 - Node.js (v16.16.0 recommended)
