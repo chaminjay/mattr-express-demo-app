@@ -1,4 +1,6 @@
-# Coffee Co. | MATTR - Express Demo App
+# Guardio Cafe | MATTR Demo App
+
+> cafe.guardio.wso2isdemo.com
 
 ## Requirements
 - Node.js (v16.16.0 recommended)
