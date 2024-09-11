@@ -1,6 +1,5 @@
 const dotenv = require("dotenv");
 const express = require("express");
-const ngrok = require("ngrok");
 const session = require("express-session");
 
 const service = require("./src/services");
@@ -15,7 +14,6 @@ const router = express();
 // register view engine
 app.set("view engine", "ejs");
 
-let ngrokUrl = null;
 let callbackState = {};
 
 // Launch the Express server
@@ -23,8 +21,7 @@ let callbackState = {};
   // Load environment variables
   dotenv.config();
   const port = process.env.PORT || "3000";
-  ngrokUrl = await ngrok.connect(port);
-
+  // If running locally, need to expose through ngrok or some tunnelling and set the public callback URL in the env configs.
   app.listen(port, () => {
     console.log(`Mattr Verifiable Credential Issuer`);
     console.log(`Local: http://localhost:${port}`);
@@ -140,7 +137,7 @@ router.get(
   "/present/validateCredentials",
   express.json(),
   async (req, res, next) => {
-    const { qrCode, challenge } = await service.validateCredentials(ngrokUrl);
+    const { qrCode, challenge } = await service.validateCredentials();
     requestLogger(req);
     var id = req.session.id;
     // prep a session state of 0
